@@ -1,0 +1,597 @@
+openapi: 3.0.3
+info:
+  title: Title-credit-card-api
+  description: |-
+    Set of APIs to invoke to fetch pending transactions for credit cards
+  version: 0.0.1
+paths:
+  /authentication-api/v1/identity-access-token/generate:
+    post:
+      tags:
+        - identity-access-token
+      summary: Generate Identity Access Token
+      description: API to generate JWT Identity Access Token for Internet Banking logged in users
+      operationId: jwtToken
+      requestBody:
+        description: jwt token payload
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/payLoad'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            x-lbg-txn-correlation-id:
+              $ref: "#/components/headers/lbgTxnCorrelationIdResponse"
+            x-lbg-api-version:
+              $ref: "#/components/headers/lbgAPIVersion"
+            access-control-allow-origin:
+              $ref: "#/components/headers/acAllowOrigin"
+            x-content-type-options:
+              $ref: "#/components/headers/contentTypeOptions"
+          content:
+            "application/json; charset=utf-8":
+              schema:
+                $ref: '#/components/schemas/token'
+        "415":
+          $ref: "#/components/responses/errorResponse"
+        "405":
+          $ref: "#/components/responses/errorResponse"
+ 
+        "406":
+          $ref: "#/components/responses/errorResponse"
+        "429":
+          $ref: "#/components/responses/errorResponse"
+        "400":
+          $ref: "#/components/responses/errorResponse"
+        "404":
+          $ref: "#/components/responses/errorResponse"
+        "401":
+          $ref: "#/components/responses/errorResponse"
+        "500":
+          $ref: "#/components/responses/errorResponse"
+        "503":
+          $ref: "#/components/responses/errorResponse"
+        "403":
+          $ref: "#/components/responses/errorResponse"
+ 
+  /cc-transactions-cleansing/v1/merchant-details:
+    post:
+      tags:
+        - merchant-details
+      summary: Generate merchant information from description
+      description: API to generate cleansedMerchantName and merchantLogo
+      requestBody:
+        description: uncleansedMerchantName
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/uncleansedMerchantName'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            x-lbg-txn-correlation-id:
+              $ref: "#/components/headers/lbgTxnCorrelationIdResponse"
+            x-lbg-api-version:
+              $ref: "#/components/headers/lbgAPIVersion"
+            access-control-allow-origin:
+              $ref: "#/components/headers/acAllowOrigin"
+            x-content-type-options:
+              $ref: "#/components/headers/contentTypeOptions"
+          content:
+            "application/json; charset=utf-8":
+              schema:
+                $ref: '#/components/schemas/merchantInformationResponse'
+        "415":
+          $ref: "#/components/responses/errorResponse"
+        "405":
+          $ref: "#/components/responses/errorResponse"
+ 
+        "406":
+          $ref: "#/components/responses/errorResponse"
+        "429":
+          $ref: "#/components/responses/errorResponse"
+        "400":
+          $ref: "#/components/responses/errorResponse"
+        "404":
+          $ref: "#/components/responses/errorResponse"
+        "401":
+          $ref: "#/components/responses/errorResponse"
+        "500":
+          $ref: "#/components/responses/errorResponse"
+        "503":
+          $ref: "#/components/responses/errorResponse"
+        "403":
+          $ref: "#/components/responses/errorResponse"
+           
+           
+  /v1/arrangements/{arrangementId}/pending-transactions:
+    get:
+      tags:
+        - pending-transactions-credit-card
+      summary: Get pending transactions for credit cards
+      description: Get pending transactions for credit cards
+      operationId: pendingTransactionsCC
+      parameters:
+        - name: arrangementId
+          in: path
+          description: encrypted account details for which pending transactions will be retrieved and returned
+          example: T7YTKWDYS34IHDTSFOP33ZEE66WIFKIQIH4CBGLAPTVPOFCMG5CQ/27RCLNYHOI5YHF2JLQRUMZGLLU/
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            x-lbg-txn-correlation-id:
+              $ref: "#/components/headers/lbgTxnCorrelationIdResponse"
+            x-lbg-api-version:
+              $ref: "#/components/headers/lbgAPIVersion"
+            access-control-allow-origin:
+              $ref: "#/components/headers/acAllowOrigin"
+            x-content-type-options:
+              $ref: "#/components/headers/contentTypeOptions" 
+          content:
+            "application/json; charset=utf-8":
+              schema:
+                $ref: '#/components/schemas/pendingCreditCardTransactions'
+        "415":
+          $ref: "#/components/responses/errorResponse"
+        "405":
+          $ref: "#/components/responses/errorResponse"
+        "406":
+          $ref: "#/components/responses/errorResponse"
+        "429":
+          $ref: "#/components/responses/errorResponse"
+        "400":
+          $ref: "#/components/responses/errorResponse"
+        "404":
+          $ref: "#/components/responses/errorResponse"
+        "401":
+          $ref: "#/components/responses/errorResponse"
+        "500":
+          $ref: "#/components/responses/errorResponse"
+        "503":
+          $ref: "#/components/responses/errorResponse"
+        "403":
+          $ref: "#/components/responses/errorResponse"
+  /v1/arrangements/{arrangementId}/statements:
+    get:
+      tags:
+        - statements-credit-card
+      summary: Get statements for credit cards
+      description: Get statements for credit cards
+      operationId: statementsCC
+      parameters:
+        - name: arrangementId
+          in: path
+          description: encrypted account details for which pending transactions will be retrieved and returned
+          example: "T7YTKWDYS34IHDTSFOP33ZEE66WIFKIQIH4CBGLAPTVPOFCMG5CQ/27RCLNYHOI5YHF2JLQRUMZGLLU/"
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: monthYear
+          schema:
+            type: string
+            format: "yyyy-MM"
+          description: a search parameter to get statement for a month and year combination
+          example: "2023-07"
+          required: true
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The page of transactions to return
+          example: 1
+          required: true
+        - in: query
+          name: size
+          schema:
+            type: integer
+          description: The number of transactions in a page
+          example: 50
+          required: true
+        - in: query
+          name: lastGivenKey
+          schema:
+            type: string
+          description: The last given key value is from the last transaction we have got.
+          example: "9x99322ndcmdkj23"
+          required: true
+        - in: query
+          name: directionKey
+          schema:
+            type: string
+          description: This is for the non-migrant accounts to fetch the previous month transactions.
+          example: "1"
+          required: true
+        - in: query
+          name: sequenceNumber
+          schema:
+            type: integer
+          example: 1
+          required: true
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+             x-lbg-txn-correlation-id:
+               $ref: "#/components/headers/lbgTxnCorrelationIdResponse"
+             x-lbg-api-version:
+               $ref: "#/components/headers/lbgAPIVersion"
+             access-control-allow-origin:
+               $ref: "#/components/headers/acAllowOrigin"
+             x-content-type-options:
+               $ref: "#/components/headers/contentTypeOptions" 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/statementsCreditCard'
+ 
+        '404':
+          description: Resource not found
+          headers:
+             x-lbg-txn-correlation-id:
+               $ref: "#/components/headers/lbgTxnCorrelationIdResponse"
+             x-lbg-api-version:
+               $ref: "#/components/headers/lbgAPIVersion"
+             access-control-allow-origin:
+               $ref: "#/components/headers/acAllowOrigin"
+             x-content-type-options:
+               $ref: "#/components/headers/contentTypeOptions" 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponseJson"
+           
+        "415":
+          $ref: "#/components/responses/errorResponse"
+        "405":
+          $ref: "#/components/responses/errorResponse"
+        "406":
+          $ref: "#/components/responses/errorResponse"
+        "429":
+          $ref: "#/components/responses/errorResponse"
+        "400":
+          $ref: "#/components/responses/errorResponse"
+        "401":
+                  $ref: "#/components/responses/errorResponse"
+        "500":
+          $ref: "#/components/responses/errorResponse"
+        "503":
+          $ref: "#/components/responses/errorResponse"
+        "403":
+          $ref: "#/components/responses/errorResponse"
+components:
+  schemas:
+    payLoad:
+      required:
+        - audience
+        - domain
+        - scope
+      type: object
+      properties:
+        audience:
+          type: string
+          example: urn:IB:LLOYDS:Retail:TRAVEL_READY
+        domain:
+          type: string
+          example: DPSSO-APIC-CHANNEL-CSVS-Engagements-TravelReady
+        scope:
+          type: string
+          example: userContext
+ 
+    uncleansedMerchantName:
+      required:
+        - uncleansedMerchantName
+      type: array
+      items:
+        description: Uncleansed Merchant List
+        type: string
+        example: "`tescostore1234`,`amazonprime`,`cutleryworks`"
+           
+    token:
+      required:
+        - Token
+      type: object
+      properties:
+        Token:
+          type: string
+          example: eyJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiYWxnIjoi...
+    errorResponseJson:
+      type: object
+      description: "Generic error response model"
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/errorInfo"
+          example:
+            - message: "The user access token is expired."
+              code: "EP-ATH-ACCESS-MGMT-API-ERR-001"
+               
+    merchantInformationResponse:
+      type: object
+      properties:
+        uncleansedMerchantName1:
+          type: object
+          properties:
+            cleansedMerchantName:
+              type: string
+              example: amazonprime
+            merchantLogo:
+              type: string
+              example: amazonprime.jpg
+        uncleansedMerchantName2:
+          type: object
+          properties:
+            cleansedMerchantName:
+              type: string
+              example: null
+            merchantLogo:
+              type: string
+              example: null
+        uncleansedMerchantName3:
+          type: object
+          properties:
+            cleansedMerchantName:
+              type: string
+              example: Tesco
+            merchantLogo:
+              type: string
+              example: tesco.jpg
+       
+    errorInfo:
+      type: object
+      description: "Generic error object"
+      required:
+        - message
+        - code
+      properties:
+        code:
+          type: string
+          description: "Description associated with the technical exception"
+          example: "EP-ATH-ACCESS-MGMT-API-ERR-001"
+        message:
+          type: string
+          description: "Description associated with the business exception"
+          example: "The user access token is expired."
+        path:
+          type: array
+          description: "path where the error occurred"
+          items:
+            type: string
+            example: "???"
+        extensions:
+          type: object
+          description: "object which can contain any key value maps"
+          example:
+            "error-extension-key": "error-extension-value?"
+    pendingCreditCardTransactions:
+      required:
+        - transactions
+        - totalAmount
+      type: object
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/transactions'
+        totalAmount:
+          $ref: '#/components/schemas/currencyAmount'
+        messages:
+          type: array
+          items:
+            type: string
+            example: ["Unable to retrieve credit card pending transactions",""]
+    statementsCreditCard:
+      type: object
+      properties:
+        balanceFromLastStatement:
+          $ref: '#/components/schemas/currencyAmount'
+                
+        lastGivenKey:
+          type: string
+          example: "S202205244"
+        directionKey:
+          type: string
+          example: "0"
+        sequenceNumber:
+          type: integer
+          example: 1
+           
+        unbilledStatement:
+          type: boolean
+          example: false
+        statementDate:
+          type: string
+          example: "2022-08-24T01:00:00+01:00"
+        dueDate:
+          type: string
+          example: "2022-08-24T01:00:00+01:00"
+        minimumPayment:
+           $ref: '#/components/schemas/currencyAmount'
+        balanceOnStatementDate:
+           $ref: '#/components/schemas/currencyAmount'
+        type:
+          type: string
+          example: CREDIT_CARD_STATEMENT
+        bbCardFilterStatus:
+          type: boolean
+          example: false
+        lastTransactionDate:
+          type: string
+          example: "2022-08-24T01:00:00+01:00"
+        directDebitAmount:
+          type: string
+          example: "0.00"
+        transactions:
+          $ref: '#/components/schemas/statementTransactions'
+        messages:
+          type: array
+          items:
+            type: string
+            example: ["Unable to retrieve credit card pending transactions",""]
+    statementTransactions:
+      type: object
+      properties:
+        size:
+          type: integer
+          example: 0
+        hiCounter:
+          type: integer
+          example: 20
+        isMoreThanMaxHINGAIndicator:
+          type: boolean
+          example: true
+        total:
+          type: integer
+          example: 20
+        page:
+          type: integer
+          example: 0
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/transactionsItem'
+    transactionsItem:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "99980724000242004"
+        description:
+          type: string
+          example: "INTEREST"
+        cleansedMerchantName:
+          type: string
+          example: AamzaonPrime
+        transactionLogo:
+          type: string
+          example: amazon.jpg
+        eligibleForAdditionalDetail:
+          type: boolean
+          example: false
+        paymentTypeForExport:
+          type: string
+          example: "30"
+        authorisationMethod:
+          type: string
+          example: ""
+        amount:
+          $ref: '#/components/schemas/currencyAmount'
+        runningBalance:
+          $ref: '#/components/schemas/currencyAmount'
+        cardHolderName:
+          type: string
+          example: "XYZ"
+        cardEnding:
+          type: string
+          example: "1085"
+        type:
+          type: string
+          example: ""
+        paymentTypeForOverlay:
+          type: string
+          example: "Transfer"
+        date:
+          type: string
+          example: "2017-09-19T00:00:00Z"
+        retailerLocation:
+          type: string
+          example: "Merchant City"
+        paymentType:
+          type: string
+          example: "30"
+        businessType:
+          type: string
+          example: ""
+        received:
+          type: string
+          example: "2017-09-24T00:00:00Z"
+        isAccountLevelTxn:
+          type: boolean
+          example: false
+        completeDescription:
+          type: array
+          items:
+             type: string
+             example: ["PAYMENT RECEIVED", ""]
+        originalAmount:
+          $ref: '#/components/schemas/currencyAmount'
+    currencyAmount:
+      type: object
+      properties:
+        amount:
+          type: number
+          example: 3.20
+        currency:
+          type: string
+          example: GBP
+    transactions:
+      type: object
+      properties:
+        date:
+          type: string
+          example: 2023-03-06
+        description:
+          type: string
+          example: TFL TRAVEL CHARGE
+        amount:
+          $ref: '#/components/schemas/currencyAmount'
+        paymentType:
+          type: string
+          example: Chip and PIN purchase
+ # Reusable response headers
+  headers:
+    lbgTxnCorrelationIdResponse:
+      description: "Same UniqueID as sent by Apigee request to microservice. Unique ID is generated by Apigee for each request (if not passed) so that we can use it to track the flow how request was handled by multiple services"
+      required: true
+      schema:
+        type: string
+        example: "random-string-here"
+ 
+    lbgAPIVersion:
+      description: "The version of the deployed API being called"
+      required: true
+      schema:
+        type: string
+        example: "2.0.1"
+ 
+    acAllowOrigin:
+      description: "A single origin, a url or host of the specific client (browser) webpage that has queried for information"
+      required: true
+      schema:
+        type: string
+        pattern: ^[^*]+$
+        example: "https://lloydsbanking.com:4000/xyz/cwa"
+         
+    contentTypeOptions:
+      description: 'This response header must always be returned and set to "nosniff" to avoid mime sniffing.'
+      required: true
+      schema:
+        type: string
+        pattern: ^nosniff$
+        example: "nosniff"
+  responses:
+    errorResponse:
+      description: "Error response"
+      headers:
+        x-lbg-txn-correlation-id:
+          $ref: "#/components/headers/lbgTxnCorrelationIdResponse"
+        x-lbg-api-version:
+          $ref: "#/components/headers/lbgAPIVersion"
+        access-control-allow-origin:
+          $ref: "#/components/headers/acAllowOrigin"
+        x-content-type-options:
+          $ref: "#/components/headers/contentTypeOptions"
+      content:
+        "application/json; charset=utf-8":
+          schema:
+            $ref: "#/components/schemas/errorResponseJson"
