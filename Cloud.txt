@@ -1,0 +1,235 @@
+openapi: 3.0.3
+info:
+  title: Title-cloud-compliance-api
+  description: |-
+    An API used to read an arrangementID, decrypt and extract the plain 16 digit card number and encrypt it by calling the DP encryption service
+  version: 0.0.1
+paths:
+  /arrangementcc/v1/{encryptedArrangementID}/token:
+    get:
+      tags:
+        - arrangement-id-token
+      summary: Read arrangmentId, extract card number and encrypt
+      description: An API used to read an arrangementID, decrypt and extract the plain 16 digit card number and encrypt it by calling the DP encryption service
+      operationId: ccTransactionsToken
+      parameters:
+        - name: encryptedArrangementID
+          in: path
+          description: encrypted credit card details for which an arrangementId will be retrieved and an encrypted token will be returned
+          example: T7YTKWDYS34IHDTSFOP33ZEE66WIFKIQIH4CBGLAPTVPOFCMG5CQ
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            x-lbg-txn-correlation-id:
+              $ref: "#/components/headers/lbgTxnCorrelationIdResponse"
+            x-lbg-api-version:
+              $ref: "#/components/headers/lbgAPIVersion"
+            access-control-allow-origin:
+              $ref: "#/components/headers/acAllowOrigin"
+            x-content-type-options:
+              $ref: "#/components/headers/contentTypeOptions"
+          content:
+            "application/json; charset=utf-8":
+              schema:
+                $ref: '#/components/schemas/arrangementIdToken'
+ 
+        "400":
+          $ref: "#/components/responses/errorResponse"
+        "401":
+          $ref: "#/components/responses/errorResponse"
+        "403":
+          $ref: "#/components/responses/errorResponse"
+        "404":
+          $ref: "#/components/responses/errorResponse"
+        "405":
+          $ref: "#/components/responses/errorResponse"
+        "406":
+          $ref: "#/components/responses/errorResponse"
+        "500":
+          $ref: "#/components/responses/errorResponse"
+        "503":
+          $ref: "#/components/responses/errorResponse"
+ 
+  /arrangementcc/v1:
+    get:
+      tags:
+        - default-call
+      summary: default call
+      description: error handler for any call made to the correct endpoint that effectively isn't valid
+      operationId: defaultCallError
+      responses:
+        '403':
+          description: Error Response
+          headers:
+            x-lbg-txn-correlation-id:
+              $ref: "#/components/headers/lbgTxnCorrelationIdResponse"
+            x-lbg-api-version:
+              $ref: "#/components/headers/lbgAPIVersion"
+            access-control-allow-origin:
+              $ref: "#/components/headers/acAllowOrigin"
+            x-content-type-options:
+              $ref: "#/components/headers/contentTypeOptions"
+          content:
+            "application/json; charset=utf-8":
+              schema:
+                $ref: '#/components/schemas/defaultCallError'
+ 
+        "400":
+          $ref: "#/components/responses/errorResponse"
+        "401":
+          $ref: "#/components/responses/errorResponse"
+        "404":
+          $ref: "#/components/responses/errorResponse"
+        "405":
+          $ref: "#/components/responses/errorResponse"
+        "406":
+          $ref: "#/components/responses/errorResponse"
+        "500":
+          $ref: "#/components/responses/errorResponse"
+        "503":
+          $ref: "#/components/responses/errorResponse"
+ 
+components:
+  schemas:
+    arrangementIdToken:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/arrangementIdObject"
+          example:
+            - arrangementId: "T7YTKWDYS34IGULPFT2FEDPQSVIX7HWTHOPUV65R3HDG37G5CFSA"
+              token: "example token here"
+    defaultCallError:
+      type: object
+      description: "Default call error response model"
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/defaultCallErrorInfo"
+          example:
+            - message: "null or empty value has been provided as input"
+              code: "10003"
+    errorResponseJson:
+      type: object
+      description: "Generic error response model"
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/errorInfo"
+          example:
+            - message: "LBG Crypt encountered an error when decrypting the arrangementId provided"
+              code: "10005"
+    errorInfo:
+      type: object
+      description: "Generic error object"
+      required:
+        - message
+        - code
+      properties:
+        code:
+          type: string
+          description: "Description associated with the technical exception"
+          example: "10005"
+        message:
+          type: string
+          description: "Description associated with the business exception"
+          example: "LBG Crypt encountered an error when decrypting the arrangementId provided"
+        path:
+          type: array
+          description: "path where the error occurred"
+          items:
+            type: string
+            example: "???"
+    defaultCallErrorInfo:
+      type: object
+      description: "Generic error object"
+      required:
+        - message
+        - code
+      properties:
+        code:
+          type: string
+          description: "Description associated with the technical exception"
+          example: "10003"
+        message:
+          type: string
+          description: "Description associated with the business exception"
+          example: "null or empty value has been provided as input"
+        path:
+          type: array
+          description: "path where the error occurred"
+          items:
+            type: string
+            example: "???"
+    arrangementIdObject:
+      type: object
+      description: "Generic error object"
+      required:
+        - arrangementId
+        - token
+      properties:
+        arrangmentId:
+          type: string
+          description: "16 digit extracted and decrypted arrangementId"
+          example: "1234123412341234"
+        token:
+          type: string
+          description: "Encrypted string in the form of a token"
+          example: "JKSJFIRJIFNMVLERKFOEROGJRNlongEncryptedStringXJFPWJRNLEPWRJFFEAHDBWEHFBHFWDHJFNBBNWEF"
+ 
+ 
+ 
+  headers:
+    lbgTxnCorrelationIdResponse:
+      description: "Same UniqueID as sent by Apigee request to microservice. Unique ID is generated by Apigee for each request (if not passed) so that we can use it to track the flow how request was handled by multiple services"
+      required: true
+      schema:
+        type: string
+        example: "random-string-here"
+ 
+    lbgAPIVersion:
+      description: "The version of the deployed API being called"
+      required: true
+      schema:
+        type: string
+        example: "2.0.1"
+ 
+    acAllowOrigin:
+      description: "A single origin, a url or host of the specific client (browser) webpage that has queried for information"
+      required: true
+      schema:
+        type: string
+        pattern: ^[^*]+$
+        example: "https://lloydsbanking.com:4000/xyz/cwa"
+ 
+    contentTypeOptions:
+      description: 'This response header must always be returned and set to "nosniff" to avoid mime sniffing.'
+      required: true
+      schema:
+        type: string
+        pattern: ^nosniff$
+        example: "nosniff"
+  responses:
+    errorResponse:
+      description: "Error response"
+      headers:
+        x-lbg-txn-correlation-id:
+          $ref: "#/components/headers/lbgTxnCorrelationIdResponse"
+        x-lbg-api-version:
+          $ref: "#/components/headers/lbgAPIVersion"
+        access-control-allow-origin:
+          $ref: "#/components/headers/acAllowOrigin"
+        x-content-type-options:
+          $ref: "#/components/headers/contentTypeOptions"
+      content:
+        "application/json; charset=utf-8":
+          schema:
+            $ref: "#/components/schemas/errorResponseJson"o
