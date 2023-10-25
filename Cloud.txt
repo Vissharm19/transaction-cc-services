@@ -232,4 +232,4 @@ components:
       content:
         "application/json; charset=utf-8":
           schema:
-            $ref: "#/components/schemas/errorResponseJson"o
+            $ref: "#/components/schemas/errorResponseJson"
